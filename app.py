@@ -26,31 +26,24 @@ db = SQLAlchemy(app)
 lm = LoginManager(app)
 lm.login_view = 'index'
 
-
 class User(UserMixin, db.Model):
   __tablename__ = 'users'
   id = db.Column(db.Integer, primary_key=True)
   social_id = db.Column(db.String(64), unique=True)
   nickname = db.Column(db.String(64))
   email = db.Column(db.String(64), unique=True)
-  friends = db.Column(db.PickleType)
-  watched_films = db.Column(db.PickleType)
-  watchlist = db.Column(db.PickleType)
+  # friends = db.Column(db.PickleType)
+  # watched_films = db.Column(db.PickleType)
+  # watchlist = db.Column(db.PickleType)
 
 class Movie(db.Model):
   __tablename__ = 'movies'
   id = db.Column(db.Integer, primary_key = True)
   product = db.Column(db.PickleType)
 
-# watched_films = db.Table('watched_films',
-#   db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-#   db.Column('movie.id', db.Integer, db.ForeignKey('movie.id'))
-# )
-
-# watchlist = db.Table('watchlist',
-#   db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
-#   db.Column('movie.id', db.Integer, db.ForeignKey('movie.id'))
-# )
+all_watched = {}
+to_watch = {}
+friends = {}
 
 @lm.user_loader
 def load_user(id):
@@ -126,7 +119,7 @@ def oauth_callback(provider):
     return redirect(url_for('signin'))
   user = User.query.filter_by(social_id=social_id).first()
   if not user:
-    user = User(social_id=social_id, nickname=username, email=email, friends=[], watched_films={}, watchlist={})
+    user = User(social_id=social_id, nickname=username, email=email)
     db.session.add(user)
     db.session.commit()
   login_user(user, True)
@@ -148,18 +141,24 @@ def show_product():
 
   watched = ""
   listed = ""
-  watched_films = current_user.watched_films
-  watchlist = current_user.watchlist
+  if not current_user.is_anonymous:
+    watched_films = all_watched[current_user.id]
+    watchlist = to_watch[current_user.id] 
+  else: 
+    return render_template('product.html', product = product, watched = watched, listed = listed)
 
   if request.method == "POST":
     print request.form["action"]
     if request.form["action"] == "Mark as Watched": # mark film as watched 
-      watched_films[product_id] = (product, datetime.datetime.now())
+      watched_films.append(product_id)
+      # watched_films[product_id] = (product, datetime.datetime.now())
       if product_id in watchlist: # remove film from watchlist if necessary
-        del watchlist[product_id] 
+        watchlist.remove(product_id)
+        # del watchlist[product_id] 
       watched = "true"
     elif request.form["action"] == "Add to Watchlist": # add film to watch list
-      watchlist[product_id] = (product, datetime.datetime.now())
+      # watchlist[product_id] = (product, datetime.datetime.now())
+      watchlist.append(product_id)
       listed = "true"
     else:
       ret = search_films()
@@ -170,8 +169,8 @@ def show_product():
     elif product_id in watched:
       watched = "true"
 
-  current_user.watched_films = watched_films
-  current_user.watchlist = watchlist
+  # to_watch[current_user.id] = watchlist
+  # all_watched[current_user.id] = watched_films
   return render_template('product.html', product = product, watched = watched, listed = listed)
 
 @app.route('/lists.html', methods=['GET', 'POST'])
@@ -181,21 +180,30 @@ def show_lists():
     return render_template('results.html', results = ret[0], query = ret[1])
 
   films = []
-  watched_films = current_user.watched_films
-  watchlist = current_user.watchlist
+  watched = []
+
+  if not current_user.is_anonymous:
+    print all_watched[current_user.id]
+    watched_films = all_watched[current_user.id]
+    print to_watch[current_user.id]
+    watchlist = to_watch[current_user.id]
+  else:  
+    return render_template('lists.html', list = films, rec_watched = watched)
 
   for k in watchlist:
-    films.append(watchlist[k])
+    f = Movie.query.get(k)
+    films.append(f.product)
 
-  sorted_list = sorted(films, key=lambda x: x[1], reverse=False) 
+  # sorted_list = sorted(films, key=lambda x: x[1], reverse=False) 
 
-  watched = []
   for k in watched_films:
-    watched.append(watched_films[k])
+    f = Movie.query.get(k)
+    watched.append(f.product)
+    # watched.append(watched_films[k])
 
-  rec_watched = sorted(watched, key=lambda x: x[1], reverse=True) 
+  # rec_watched = sorted(watched, key=lambda x: x[1], reverse=True) 
 
-  return render_template('lists.html', list = sorted_list, rec_watched = rec_watched)
+  return render_template('lists.html', list = films, rec_watched = watched)
 
 @app.route('/signin.html', methods=['GET', 'POST'])
 def signin():
@@ -207,7 +215,8 @@ def signin():
     if user:
       # if bcrypt.check_password_hash(user.password, password):
       if password == user.social_id:
-        user.authenticated = True
+        if not user.is_authenticated:
+          user.authenticated = True
         db.session.add(user)
         db.session.commit()
         login_user(user, remember=True)
@@ -218,39 +227,55 @@ def signin():
         if not next_is_valid(next):
           return flask.abort(400)
 
-        return redirect(next or flask.url_for('index'))
+        return redirect(next or url_for('index'))
     else:
-      user = User(social_id=password, nickname=name, email=email, friends=[], watched_films={}, watchlist={})
+      user = User(social_id=password, nickname=name, email=email)
       db.session.add(user)
       db.session.commit()
-      # login_user(user, remember=True)
+      login_user(user)
+      user.authenticated = True
+      all_watched[user.id] = []
+      to_watch[user.id] = []
+      friends[user.id] = []
+      return redirect(url_for('index'))
+
   return render_template('signin.html')
 
 @app.route('/friends.html', methods=['GET', 'POST'])
 def find_friends():
+  res = []
+  for friend in friends[current_user.id]:
+    user = User.query.get(friend)
+    res.append(user.nickname)
+
   if request.method == "POST":
     friend = request.form["browse_friend"]
     fr_list = request.form.getlist('check')
+
     if friend:
       f = User.query.filter_by(nickname=friend).first()
       if f:
-        return render_template("friends.html", browse_list=f.watchlist)
+        browse_list = []
+        for movie_id in to_watch[f.id]:
+          prod = Movie.query.get(movie_id)
+          browse_list.append(prod.product)
+        return render_template("friends.html", browse_list=browse_list)
     elif fr_list:
       films = {}
       for f in fr_list:
-        for w in f.watchlist:
-          if f.watchlist[w] in films:
-            films[f.watchlist[w]] += 1
+        f_id = User.query.filter_by(nickname=f).first()
+        for w in to_watch[f.id]:
+          if w in films:
+            films[w] += 1
           else:
-            films[f.watchlist[w]] = 1
+            films[w] = 1
       sorted_films = sorted(films.items(), key=operator.itemgetter(1))
-      return render_template("friends.html", friends=current_user.friends, res=sorted_films[0])
+      return render_template("friends.html", friends=res, res=sorted_films[0])
     else:
       ret = search_films()
       return render_template('results.html', results = ret[0], query = ret[1])
 
-
-  return render_template("friends.html", friends=current_user.friends)
+  return render_template("friends.html", friends=res)
 
 if __name__ == '__main__':
     db.create_all()

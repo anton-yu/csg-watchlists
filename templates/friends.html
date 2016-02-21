@@ -51,8 +51,8 @@
           <ol>
             {% for film in browse_list %}
               <li class="thumbnails">
-                <a href="product.html?productID={{ film[0]["Id"] }}">
-                  <img src ={{ film[0]["ThumbnailUrl"]}} alt = "{{ film[0]["Name"] }}" height = "240" width = "175">
+                <a href="product.html?productID={{ film["Id"] }}">
+                  <img src ={{ film["ThumbnailUrl"]}} alt = "{{ film["Name"] }}" height = "240" width = "175">
                 </a>
               </li>
             {% endfor %}
@@ -65,14 +65,14 @@
       {% if friends %}
         <form class="row" action="" method="POST">
         {% for f in friends %}
-          <input type="checkbox" name="check" value="{{ f }}">{{ f.nickname }}
+          <input type="checkbox" name="check" value="{{ f.id }}">{{ f.nickname }}
         {% endfor %}
       {% endif %}
 
       {% if res %}
-        <h5> Recommended for you: {{ res[0]["Name"] }} </h5>
-        <a href="product.html?productID={{ res[0]["Id"] }}">
-          <img src ={{ res[0]["ThumbnailUrl"]}} alt = "{{ res[0]["Name"] }}" height = "240" width = "175">
+        <h5> Recommended for you: {{ res["Name"] }} </h5>
+        <a href="product.html?productID={{ res["Id"] }}">
+          <img src ={{ res["ThumbnailUrl"]}} alt = "{{ res["Name"] }}" height = "240" width = "175">
         </a>
       {% endif %}
       </div>
