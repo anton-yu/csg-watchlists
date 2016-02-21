@@ -6,6 +6,7 @@ from oauth import OAuthSignIn
 import urllib2
 import json
 import datetime
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'top secret!'
