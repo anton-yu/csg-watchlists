@@ -11,6 +11,16 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'top secret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+app.config['OAUTH_CREDENTIALS'] = {
+    'facebook': {
+        'id': '154366911614208',
+        'secret': '1b1566407beea556bc0dbd255a5c0b96'
+    },
+    'twitter': {
+        'id': '3RzWQclolxWZIMq5LJqzRZPTl',
+        'secret': 'm9TEd58DSEtRrZHpz2EjrV9AhsBRxKMo8m3kuIZj3zLwzwIimt'
+    }
+}
 
 db = SQLAlchemy(app)
 lm = LoginManager(app)
