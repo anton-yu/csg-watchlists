@@ -30,9 +30,12 @@ lm.login_view = 'index'
 class User(UserMixin, db.Model):
   __tablename__ = 'users'
   id = db.Column(db.Integer, primary_key=True)
-  social_id = db.Column(db.String(64), nullable=False, unique=True)
-  nickname = db.Column(db.String(64), nullable=False)
-  email = db.Column(db.String(64), nullable=True)
+  social_id = db.Column(db.String(64), unique=True)
+  nickname = db.Column(db.String(64))
+  email = db.Column(db.String(64), unique=True)
+  friends = db.Column(db.PickleType)
+  watched_films = db.Column(db.PickleType)
+  watchlist = db.Column(db.PickleType)
 
 class Movie(db.Model):
   __tablename__ = 'movies'
@@ -52,9 +55,6 @@ class Movie(db.Model):
 @lm.user_loader
 def load_user(id):
   return User.query.get(int(id))
-
-watched_films = {}
-watchlist = {}
 
 def search_films():
   if request.form['action']:
@@ -76,6 +76,14 @@ def index():
     return render_template('results.html', results = ret[0], query = ret[1])
 
   # carousel of most popular or recommended films, then browse per genre below? 
+
+  # friends = current_user.friends
+  # lists = []
+
+  # for f in friends:
+  #   friend = User.query.get(f)
+  #   if friend:
+  #     lists.append(friend.watchlist)
 
   # For retrieving films per genre 
 
@@ -118,7 +126,7 @@ def oauth_callback(provider):
     return redirect(url_for('signin'))
   user = User.query.filter_by(social_id=social_id).first()
   if not user:
-    user = User(social_id=social_id, nickname=username, email=email)
+    user = User(social_id=social_id, nickname=username, email=email, friends=[], watched_films={}, watchlist={})
     db.session.add(user)
     db.session.commit()
   login_user(user, True)
@@ -140,6 +148,8 @@ def show_product():
 
   watched = ""
   listed = ""
+  watched_films = current_user.watched_films
+  watchlist = current_user.watchlist
 
   if request.method == "POST":
     print request.form["action"]
@@ -160,6 +170,8 @@ def show_product():
     elif product_id in watched:
       watched = "true"
 
+  current_user.watched_films = watched_films
+  current_user.watchlist = watchlist
   return render_template('product.html', product = product, watched = watched, listed = listed)
 
 @app.route('/lists.html', methods=['GET', 'POST'])
@@ -169,6 +181,8 @@ def show_lists():
     return render_template('results.html', results = ret[0], query = ret[1])
 
   films = []
+  watched_films = current_user.watched_films
+  watchlist = current_user.watchlist
 
   for k in watchlist:
     films.append(watchlist[k])
@@ -185,7 +199,58 @@ def show_lists():
 
 @app.route('/signin.html', methods=['GET', 'POST'])
 def signin():
+  if request.method == "POST":
+    email = request.form["email"]
+    password = request.form["password"]
+    name = request.form["name"]
+    user = User.query.filter_by(email=email).first()
+    if user:
+      # if bcrypt.check_password_hash(user.password, password):
+      if password == user.social_id:
+        user.authenticated = True
+        db.session.add(user)
+        db.session.commit()
+        login_user(user, remember=True)
+
+        flask.flash('Logged in successfully.')
+
+        next = request.args.get('next')
+        if not next_is_valid(next):
+          return flask.abort(400)
+
+        return redirect(next or flask.url_for('index'))
+    else:
+      user = User(social_id=password, nickname=name, email=email, friends=[], watched_films={}, watchlist={})
+      db.session.add(user)
+      db.session.commit()
+      # login_user(user, remember=True)
   return render_template('signin.html')
+
+@app.route('/friends.html', methods=['GET', 'POST'])
+def find_friends():
+  if request.method == "POST":
+    friend = request.form["browse_friend"]
+    fr_list = request.form.getlist('check')
+    if friend:
+      f = User.query.filter_by(nickname=friend).first()
+      if f:
+        return render_template("friends.html", browse_list=f.watchlist)
+    elif fr_list:
+      films = {}
+      for f in fr_list:
+        for w in f.watchlist:
+          if f.watchlist[w] in films:
+            films[f.watchlist[w]] += 1
+          else:
+            films[f.watchlist[w]] = 1
+      sorted_films = sorted(films.items(), key=operator.itemgetter(1))
+      return render_template("friends.html", friends=current_user.friends, res=sorted_films[0])
+    else:
+      ret = search_films()
+      return render_template('results.html', results = ret[0], query = ret[1])
+
+
+  return render_template("friends.html", friends=current_user.friends)
 
 if __name__ == '__main__':
     db.create_all()

@@ -20,19 +20,21 @@
 
     <style>
       .hidden {display: none;}
+      .btn-default {background-color: #46b8da; color: #fff;}
+      #thumbnails {position: relative; margin: auto;}
     </style>
 
-    <div class="container">
+    <div class="container" style="text-align:center;">
       <button id="watch" class="btn btn-default">Watchlist</button>
       <button id="watched" class="btn btn-default">Recently Watched</button>
     </div>
 
     <div class="container" id="watchlist">
-      <h3> My Watchlist </h3>
+      <h3 style="text-align:center;"> My Watchlist </h3>
       {% if list %}
           <ol>
             {% for film in list %}
-              <li>
+              <li class="thumbnails">
                 <a href="product.html?productID={{ film[0]["Id"] }}">
                   <img src ={{ film[0]["ThumbnailUrl"]}} alt = "{{ film[0]["Name"] }}" height = "240" width = "175">
                 </a>
@@ -48,11 +50,11 @@
     </div>
 
     <div id="alreadyWatched" class="hidden container">
-      <h3> Recently Watched </h3>
+      <h3 style="text-align:center;"> Recently Watched </h3>
       {% if rec_watched %}
         <ol>
           {% for film in rec_watched %}
-            <li>
+            <li class="thumbnails">
               <a href="product.html?productID={{ film[0]["Id"] }}">
                 <img src ={{ film[0]["ThumbnailUrl"]}} alt = "{{ film[0]["Name"] }}" height = "240" width = "175">
               </a>

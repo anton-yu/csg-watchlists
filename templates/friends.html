@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  {%- block head -%}{%- include 'head.html' -%}{%- endblock -%}
+
+  <body>
+    {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%}
+
+    <style>
+      .btn-default {background-color: #46b8da; color: #fff;}
+      .hidden {display: none;}
+      .col-md-6 {margin-left: 175px; margin-top: 50px;}
+    </style>
+
+    <script>
+      $(document).ready(function(){
+          $("#browse").click(function(){
+            $("#comparing").addClass('hidden');
+            $("#finding").addClass('hidden');
+            $("#browsing").removeClass('hidden');
+          });
+          $("#compare").click(function(){
+            $("#comparing").removeClass('hidden');
+            $("#browsing").addClass('hidden');
+            $("#finding").addClass('hidden')
+          });
+          $("#find").click(function(){
+            $("#finding").removeClass('hidden');
+            $("#browsing").addClass('hidden');
+            $("#comparing").addClass('hidden');
+          });
+      });
+    </script>
+
+    <div class="container" style="text-align:center;">
+      <h3> Connect with Friends! </h3>
+      <button id="browse" class="btn btn-default">Browse a Friend's List</button>
+      <button id="compare" class="btn btn-default">Choose a Movie to Watch with Friends</button>
+      <button id="find" class="btn btn-default">Find Friends</button>
+
+      <div id="browsing" class="col-md-6 hidden">
+        <span class="help-block"></span>
+        <h5> Search for a friend </h5>
+        <form class="omb_loginForm" action="" autocomplete="off" method="POST">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-list"></i></span>
+            <input  type="friend" class="form-control" name="browse_friend" id="friend" placeholder="Friend's Name">
+          </div>
+        </form>
+
+        {% if browse_list %}
+          <ol>
+            {% for film in browse_list %}
+              <li class="thumbnails">
+                <a href="product.html?productID={{ film[0]["Id"] }}">
+                  <img src ={{ film[0]["ThumbnailUrl"]}} alt = "{{ film[0]["Name"] }}" height = "240" width = "175">
+                </a>
+              </li>
+            {% endfor %}
+          </ol>
+        {% endif %}
+      </div>
+
+      <div id="comparing" class="col-md-6 hidden">
+      <h5> Choose which friends you'd like to watch a movie with, and we'll find a movie based on your watchlists. </h5>
+      {% if friends %}
+        <form class="row" action="" method="POST">
+        {% for f in friends %}
+          <input type="checkbox" name="check" value="{{ f }}">{{ f.nickname }}
+        {% endfor %}
+      {% endif %}
+
+      {% if res %}
+        <h5> Recommended for you: {{ res[0]["Name"] }} </h5>
+        <a href="product.html?productID={{ res[0]["Id"] }}">
+          <img src ={{ res[0]["ThumbnailUrl"]}} alt = "{{ res[0]["Name"] }}" height = "240" width = "175">
+        </a>
+      {% endif %}
+      </div>
+
+      <div id="finding" class="col-md-6 hidden">
+        <h5> Search for more friends </h5>
+        <form class="omb_loginForm" action="" autocomplete="off" method="POST">
+          <div class="input-group">
+            <span class="input-group-addon"><i class="fa fa-user"></i></span>
+            <input  type="friend" class="form-control" name="find_friend" id="friend" placeholder="Name">
+          </div>
+        </form>
+      </div>
+
+  </div>
+
+  </body>
+</html>

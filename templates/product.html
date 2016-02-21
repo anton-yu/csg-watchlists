@@ -6,48 +6,46 @@
   <body>
     {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%}
 
-    <h3> {{ product["IndexName"] }} </h3>
-    <img src={{ product["ThumbnailUrl"] }} alt={{ product["IndexName"] }} height = "350" width = "256">
-    
-    <form role="form" method="POST" action="">
+    <div class="container">
+      <div class="col-md-12">
 
-      {% if watched %}
+        <div class="col-md-5">
+          <img src={{ product["ThumbnailUrl"] }} alt={{ product["IndexName"] }} height = "350" width = "256"style="position:relative;">
 
-      <style>
-        #watched {background-color: #DFF0D8;}
-      </style>
+          <form role="form" method="POST" action="">
+            <div class="row" style="padding-top: 10px; position:relative; left:20px">
+              {% if watched %}
+                <style>
+                  #watched {background-color: #DFF0D8; margin: 0px 0px 10px 0px;}
+                </style>
+                <button id="watched" type="button" class="btn btn-default" disabled>Watched</button>
+              {% else %}
+                <div class="form-group">
+                  <input id="watched" name="action" type="submit" value="Mark as Watched" class="btn btn-default">
+                </div>
+              {% endif %}
 
-      <div class="form-group">
-        <button id="watched" type="button" class="btn btn-default" disabled>Watched</button>
+              {% if listed %}
+                <style>
+                  #add_list {background-color: #E2E263; margin: 0px 0px 10px 0px;}
+                </style>
+                <button id="add_list" type="button" class="btn btn-default" disabled>In Watchlist</button>
+              {% else %}
+                <div class="form-group">
+                  <input id="add_list" name="action" type="submit" value="Add to Watchlist" class="btn btn-default">
+                </div>
+              {% endif %}
+            </div>
+          </form>
+
+        </div>
+
+        <div class="col-md-7">
+          <h3 style="text-align:center;"> {{ product["IndexName"] }} </h3>
+          <p>{{ product["ShortDescription"] }} </p>
+        </div>
+
       </div>
-
-      {% elif listed %}
-
-      <style>
-        #add_list {background-color: #E2E263;}
-      </style>
-
-      <div class="form-group">
-        <input id="watched" name="action" type="submit" value="Mark as Watched" class="btn btn-default">
-      </div>
-
-      <div class="form-group">
-        <button id="add_list" type="button" class="btn btn-default" disabled>In Watchlist</button>
-      </div>
-
-      {% else %}
-
-      <div class="form-group">
-        <input id="watched" name="action" type="submit" value="Mark as Watched" class="btn btn-default">
-      </div>
-
-      <div class="form-group">
-        <input id="add_list" name="action" type="submit" value="Add to Watchlist" class="btn btn-default">
-      </div>
-
-      {% endif %}
-
-    </form>
 
   </body>
 </html>
