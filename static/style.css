@@ -165,7 +165,7 @@ header.marquee .btn-cta:hover {
     text-align: center;
     color: rgba(255, 255, 255, .8);
     background-color: #b84d45;
-    background-image: url(/assets/img/bg.png);
+    background-image: url(//sbootstrap.startbootstrapc.netdna-cdn.com/assets/img/bg.png);
     margin-bottom: 40px;
     font-size: 20px
 }
