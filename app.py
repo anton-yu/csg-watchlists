@@ -91,7 +91,7 @@ def index():
   #   URL = products_URL + str(genre_id)
   #   products[genre_id] = json.load(urllib2.urlopen(URL))["Products"]
 
-  return render_template('index.html') # genres = genres, products = products
+  return render_template('index.html', genres = genres, products = products)
 
 @app.route('/logout')
 def logout():
@@ -175,7 +175,13 @@ def show_lists():
 
   sorted_list = sorted(films, key=lambda x: x[1], reverse=False) 
 
-  return render_template('lists.html', list = sorted_list)
+  watched = []
+  for k in watched_films:
+    watched.append(watched_films[k])
+
+  rec_watched = sorted(watched, key=lambda x: x[1], reverse=True) 
+
+  return render_template('lists.html', list = sorted_list, rec_watched = rec_watched)
 
 @app.route('/signin.html', methods=['GET', 'POST'])
 def signin():

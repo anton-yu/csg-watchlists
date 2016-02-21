@@ -5,14 +5,20 @@
   <body>
     {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%}
 
-      <!--  For showing thumbnails 
-    {% if genres %}
+    <header class="sb-page-header">
+      <div class="container">
+        <h1>Movie Night</h1>
+        <p>What do you want to watch with your friends?</p>
+      </div>
+    </header>
+
+<!--     {% if genres %}
       {% for genre in genres %}
         {% for product in products[genre["Id"]] %}
           <img src = {{ product["ThumbnailUrl"] }} alt = {{ product["Name"] }} height = "350" width = "256">
         {% endfor %}
       {% endfor %}
-    {% endif %} -->
-
+    {% endif %}
+ -->
   </body>
 </html>

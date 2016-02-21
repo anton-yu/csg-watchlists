@@ -24,7 +24,7 @@
 
     <div class="container">
       <button id="watch" class="btn btn-default">Watchlist</button>
-      <button id="watched" class="btn btn-default">Watched</button>
+      <button id="watched" class="btn btn-default">Recently Watched</button>
     </div>
 
     <div class="container" id="watchlist">
@@ -40,12 +40,26 @@
             {% endfor %}
           </ol>
       {% else %}
-        <h4> There are no movies in your watchlist. Browse <a href="/">here</a> for movies, or look at your recommendations here. </h4>
+        <h4> There are no movies in your watchlist. 
+          <a href="/">Add movies to watch now.</a>  
+          Or, take a look at what your friends have watched recently. 
+        </h4>
       {% endif %}
     </div>
 
     <div id="alreadyWatched" class="hidden container">
-      <h3> Already Watched </h3>
+      <h3> Recently Watched </h3>
+      {% if rec_watched %}
+        <ol>
+          {% for film in rec_watched %}
+            <li>
+              <a href="product.html?productID={{ film[0]["Id"] }}">
+                <img src ={{ film[0]["ThumbnailUrl"]}} alt = "{{ film[0]["Name"] }}" height = "240" width = "175">
+              </a>
+            </li>
+          {% endfor %}
+        </ol>
+      {% endif %}
     </div>
 
   </body>
