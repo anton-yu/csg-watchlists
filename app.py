@@ -11,16 +11,7 @@ import os
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'top secret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-app.config['OAUTH_CREDENTIALS'] = {
-    'facebook': {
-        'id': '154366911614208',
-        'secret': '1b1566407beea556bc0dbd255a5c0b96'
-    },
-    'twitter': {
-        'id': '3RzWQclolxWZIMq5LJqzRZPTl',
-        'secret': 'm9TEd58DSEtRrZHpz2EjrV9AhsBRxKMo8m3kuIZj3zLwzwIimt'
-    }
-}
+
 
 db = SQLAlchemy(app)
 lm = LoginManager(app)
@@ -129,7 +120,7 @@ def oauth_callback(provider):
 def show_product():
   product_id = request.args.get('productID')
 
-  product = Movie.query.filter_by(id=product_id).first()
+  product = Movie.query.get(product_id)
   if not product:
     product_URL = "http://metadata.sls1.cdops.net/Product/SystemId/e5ce3167-4e0b-4867-a8c3-c8f23aec5e71/DistributionChannel/20389393-b2e4-4f65-968e-75a5227e544c/Id/" + str(product_id)
     product = json.load(urllib2.urlopen(product_URL))["Product"]
