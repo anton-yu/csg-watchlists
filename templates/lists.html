@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  {%- block head -%}{%- include 'head.html' -%}{%- endblock -%}
+
+  <body>
+    {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%} 
+
+    <script>
+      $(document).ready(function(){
+          $("#watch").click(function(){
+              $("#alreadyWatched").addClass('hidden');
+              $("#watchlist").show();
+          });
+          $("#watched").click(function(){
+              $("#alreadyWatched").removeClass('hidden');
+              $("#watchlist").hide();
+          });
+      });
+    </script>
+
+    <style>
+      .hidden {display: none;}
+    </style>
+
+    <div class="container">
+      <button id="watch" class="btn btn-default">Watchlist</button>
+      <button id="watched" class="btn btn-default">Watched</button>
+    </div>
+
+    <div class="container" id="watchlist">
+      <h3> My Watchlist </h3>
+      {% if list %}
+          <ol>
+            {% for film in list %}
+              <li>
+                <a href="product.html?productID={{ film[0]["Id"] }}">
+                  <img src ={{ film[0]["ThumbnailUrl"]}} alt = "{{ film[0]["Name"] }}" height = "240" width = "175">
+                </a>
+              </li>
+            {% endfor %}
+          </ol>
+      {% else %}
+        <h4> There are no movies in your watchlist. Browse <a href="/">here</a> for movies, or look at your recommendations here. </h4>
+      {% endif %}
+    </div>
+
+    <div id="alreadyWatched" class="hidden container">
+      <h3> Already Watched </h3>
+    </div>
+
+  </body>
+
+</html>

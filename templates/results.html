@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  {%- block head -%}{%- include 'head.html' -%}{%- endblock -%}
+
+  <body>
+    {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%}
+
+    {% if results %}
+      <h3> {{ query }} </h3>
+      {% for result in results %}
+        <a href="product.html?productID={{ result["Id"] }}">
+          <img src = {{ result["ThumbnailUrl"] }} alt = {{ result["IndexName"] }} height = "240" width = "175">
+        </a>
+      {% endfor %}
+
+    {% else %}
+      <h3> {{ query }}: No results </h3>
+    {% endif %}
+    
+  </body>
+</html>
+

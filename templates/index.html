@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  {%- block head -%}{%- include 'head.html' -%}{%- endblock -%}
+
+  <body>
+    {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%}
+
+      <!--  For showing thumbnails 
+    {% if genres %}
+      {% for genre in genres %}
+        {% for product in products[genre["Id"]] %}
+          <img src = {{ product["ThumbnailUrl"] }} alt = {{ product["Name"] }} height = "350" width = "256">
+        {% endfor %}
+      {% endfor %}
+    {% endif %} -->
+
+  </body>
+</html>

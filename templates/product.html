@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<html>
+  {%- block head -%}{%- include 'head.html' -%}{%- endblock -%}
+
+  <body>
+    {%- block nav -%}{%- include 'nav.html' -%}{%- endblock -%}
+
+    <h3> {{ product["IndexName"] }} </h3>
+    <img src={{ product["ThumbnailUrl"] }} alt={{ product["IndexName"] }} height = "350" width = "256">
+    
+    <form role="form" method="POST" action="">
+
+      {% if watched %}
+
+      <style>
+        #watched {background-color: #DFF0D8;}
+      </style>
+
+      <div class="form-group">
+        <button id="watched" type="button" class="btn btn-default" disabled>Watched</button>
+      </div>
+
+      {% elif listed %}
+
+      <style>
+        #add_list {background-color: #E2E263;}
+      </style>
+
+      <div class="form-group">
+        <input id="watched" name="action" type="submit" value="Mark as Watched" class="btn btn-default">
+      </div>
+
+      <div class="form-group">
+        <button id="add_list" type="button" class="btn btn-default" disabled>In Watchlist</button>
+      </div>
+
+      {% else %}
+
+      <div class="form-group">
+        <input id="watched" name="action" type="submit" value="Mark as Watched" class="btn btn-default">
+      </div>
+
+      <div class="form-group">
+        <input id="add_list" name="action" type="submit" value="Add to Watchlist" class="btn btn-default">
+      </div>
+
+      {% endif %}
+
+    </form>
+
+  </body>
+</html>
+
