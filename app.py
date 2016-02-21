@@ -91,7 +91,7 @@ def index():
   #   URL = products_URL + str(genre_id)
   #   products[genre_id] = json.load(urllib2.urlopen(URL))["Products"]
 
-  return render_template('index.html', genres = genres, products = products)
+  return render_template('index.html') #, genres = genres, products = products
 
 @app.route('/logout')
 def logout():
